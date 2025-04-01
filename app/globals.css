@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Cores inspiradas na franquia Pokémon */
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Vermelho Pokéball */
+    --primary: 0 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Azul Pokémon */
+    --secondary: 217 92% 51%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* Amarelo Pikachu */
+    --accent: 45 93% 47%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Vermelho Pokéball mais escuro */
+    --primary: 0 73% 43%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Azul Pokémon mais escuro */
+    --secondary: 217 92% 41%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    /* Amarelo Pikachu mais escuro */
+    --accent: 45 93% 37%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Adicionar transições para elementos comuns */
+  .card,
+  .button,
+  .input,
+  .dropdown-menu,
+  .dialog,
+  .popover {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+}
+
+/* Estilos específicos para tipos de Pokémon */
+.pokemon-type {
+  @apply px-2 py-1 rounded-full text-white text-xs font-medium;
+}
+
+.pokemon-type-normal {
+  @apply bg-gray-400;
+}
+.pokemon-type-fire {
+  @apply bg-orange-500;
+}
+.pokemon-type-water {
+  @apply bg-blue-500;
+}
+.pokemon-type-electric {
+  @apply bg-yellow-400;
+}
+.pokemon-type-grass {
+  @apply bg-green-500;
+}
+.pokemon-type-ice {
+  @apply bg-blue-200 text-blue-800;
+}
+.pokemon-type-fighting {
+  @apply bg-red-700;
+}
+.pokemon-type-poison {
+  @apply bg-purple-500;
+}
+.pokemon-type-ground {
+  @apply bg-amber-600;
+}
+.pokemon-type-flying {
+  @apply bg-indigo-300 text-indigo-800;
+}
+.pokemon-type-psychic {
+  @apply bg-pink-500;
+}
+.pokemon-type-bug {
+  @apply bg-lime-500;
+}
+.pokemon-type-rock {
+  @apply bg-yellow-700;
+}
+.pokemon-type-ghost {
+  @apply bg-purple-700;
+}
+.pokemon-type-dragon {
+  @apply bg-indigo-700;
+}
+.pokemon-type-dark {
+  @apply bg-gray-700;
+}
+.pokemon-type-steel {
+  @apply bg-gray-400;
+}
+.pokemon-type-fairy {
+  @apply bg-pink-300 text-pink-800;
+}
+
+/* Estilos para os cards de movimentos */
+.pokemon-move-normal {
+  @apply bg-gray-400 text-white;
+}
+.pokemon-move-fire {
+  @apply bg-orange-500 text-white;
+}
+.pokemon-move-water {
+  @apply bg-blue-500 text-white;
+}
+.pokemon-move-electric {
+  @apply bg-yellow-400 text-black;
+}
+.pokemon-move-grass {
+  @apply bg-green-500 text-white;
+}
+.pokemon-move-ice {
+  @apply bg-blue-200 text-blue-800;
+}
+.pokemon-move-fighting {
+  @apply bg-red-700 text-white;
+}
+.pokemon-move-poison {
+  @apply bg-purple-500 text-white;
+}
+.pokemon-move-ground {
+  @apply bg-amber-600 text-white;
+}
+.pokemon-move-flying {
+  @apply bg-indigo-300 text-indigo-800;
+}
+.pokemon-move-psychic {
+  @apply bg-pink-500 text-white;
+}
+.pokemon-move-bug {
+  @apply bg-lime-500 text-white;
+}
+.pokemon-move-rock {
+  @apply bg-yellow-700 text-white;
+}
+.pokemon-move-ghost {
+  @apply bg-purple-700 text-white;
+}
+.pokemon-move-dragon {
+  @apply bg-indigo-700 text-white;
+}
+.pokemon-move-dark {
+  @apply bg-gray-700 text-white;
+}
+.pokemon-move-steel {
+  @apply bg-gray-400 text-white;
+}
+.pokemon-move-fairy {
+  @apply bg-pink-300 text-pink-800;
+}
+
