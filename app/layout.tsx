@@ -11,7 +11,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Pokémon App",
   description: "A simple Pokémon listing application with language and theme switching",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -32,6 +31,3 @@ export default function RootLayout({
   )
 }
 
-
-
-import './globals.css'

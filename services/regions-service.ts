@@ -1,4 +1,3 @@
-// Definição das regiões dos jogos Pokémon e seus intervalos de IDs
 export interface Region {
   id: number
   name: string
