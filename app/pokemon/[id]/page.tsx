@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations } from "@/hooks/use-translations"
 import { getPokemonDetails, getPokemonSpecies, getEvolutionChain, getMoveDetails } from "@/services/pokemon-service"
@@ -13,9 +13,11 @@ import { Progress } from "@/components/ui/progress"
 import { ChevronLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import type { TranslationKey } from "@/translations"
+import type { EvolutionChainLink, EvolutionDetail } from "@/types/pokemon"
+import { useAppContext } from "@/contexts/app-context"
 
 export default function PokemonDetailsPage() {
-  const { t } = useTranslations()
   const { language } = useAppContext()
   const params = useParams()
   const router = useRouter()
@@ -28,6 +30,14 @@ export default function PokemonDetailsPage() {
   const [availableGames, setAvailableGames] = useState<string[]>([])
   const [movesWithTypes, setMovesWithTypes] = useState<Record<string, MoveWithType[]>>({})
   const [isLoadingMoves, setIsLoadingMoves] = useState(false)
+  const { t } = useTranslations()
+
+  const formatName = useCallback((name: string) => {
+    return name
+      .split("-")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ")
+  }, [])
 
   useEffect(() => {
     async function loadPokemonDetails() {
@@ -149,15 +159,9 @@ export default function PokemonDetailsPage() {
     }
 
     loadMoveTypes()
-  }, [pokemon, selectedGame])
+  }, [pokemon, selectedGame, formatName])
 
   // Função para formatar o nome com a primeira letra maiúscula
-  const formatName = (name: string) => {
-    return name
-      .split("-")
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(" ")
-  }
 
   // Função para obter a descrição do Pokémon no idioma atual
   const getPokemonDescription = () => {
@@ -271,8 +275,34 @@ export default function PokemonDetailsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {varieties.map((variety, index) => {
           const pokemonId = getIdFromUrl(variety.pokemon.url)
+          const [formDetails, setFormDetails] = useState<PokemonDetails | null>(null)
+          const [isHovering, setIsHovering] = useState(false)
+          const [isLoading, setIsLoading] = useState(false)
+          const { t } = useTranslations()
+
+          // Load form details on hover
+          const handleMouseEnter = async () => {
+            setIsHovering(true)
+            if (!formDetails && !isLoading) {
+              setIsLoading(true)
+              try {
+                const details = await getPokemonDetails(pokemonId)
+                setFormDetails(details)
+              } catch (error) {
+                console.error(`Error loading form details for ${variety.pokemon.name}:`, error)
+              } finally {
+                setIsLoading(false)
+              }
+            }
+          }
+
           return (
-            <Link href={`/pokemon/${pokemonId}`} key={index}>
+            <div
+              key={index}
+              className="relative"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={() => setIsHovering(false)}
+            >
               <Card className="overflow-hidden hover:bg-accent transition-colors">
                 <CardContent className="p-4">
                   <div className="relative h-24 w-24 mx-auto">
@@ -286,7 +316,30 @@ export default function PokemonDetailsPage() {
                   <p className="text-center mt-2 text-sm">{formatName(variety.pokemon.name)}</p>
                 </CardContent>
               </Card>
-            </Link>
+
+              {/* Stats tooltip on hover */}
+              {isHovering && (
+                <div className="absolute z-10 w-64 p-3 bg-popover text-popover-foreground rounded-md shadow-lg -translate-x-1/2 left-1/2 mt-2">
+                  <h4 className="font-semibold text-center mb-2">{formatName(variety.pokemon.name)} Stats</h4>
+                  {isLoading ? (
+                    <div className="flex justify-center py-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    </div>
+                  ) : formDetails ? (
+                    <div className="space-y-1.5">
+                      {formDetails.stats.map((stat) => (
+                        <div key={stat.stat.name} className="grid grid-cols-2 gap-2 text-sm">
+                          <span className="font-medium">{t(statNameMap[stat.stat.name] || stat.stat.name)}:</span>
+                          <span>{stat.base_stat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-sm">{t("statsUnavailable")}</p>
+                  )}
+                </div>
+              )}
+            </div>
           )
         })}
       </div>
@@ -572,7 +625,4 @@ const statNameMap: Record<string, TranslationKey> = {
   "special-defense": "specialDefense",
   speed: "speed",
 }
-import type { TranslationKey } from "@/translations"
-import type { EvolutionChainLink, EvolutionDetail } from "@/types/pokemon"
-import { useAppContext } from "@/contexts/app-context"
 

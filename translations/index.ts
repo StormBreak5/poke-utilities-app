@@ -75,6 +75,14 @@ export const translations = {
     totalPokemon: "Total Pokémon",
     page: "Page",
     back: "Back",
+    // New translations for navbar and items
+    home: "Home",
+    heldItems: "Held Items",
+    searchItems: "Search items...",
+    noItems: "No items found",
+    category: "Category",
+    noDescription: "No description available",
+    statsUnavailable: "Stats unavailable",
   },
   pt: {
     title: "Lista de Pokémon",
@@ -153,6 +161,14 @@ export const translations = {
     totalPokemon: "Total de Pokémon",
     page: "Página",
     back: "Voltar",
+    // New translations for navbar and items
+    home: "Início",
+    heldItems: "Itens Seguráveis",
+    searchItems: "Buscar itens...",
+    noItems: "Nenhum item encontrado",
+    category: "Categoria",
+    noDescription: "Sem descrição disponível",
+    statsUnavailable: "Estatísticas indisponíveis",
   },
 }
 
