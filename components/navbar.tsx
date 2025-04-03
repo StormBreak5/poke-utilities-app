@@ -7,10 +7,13 @@ import { PokeballIcon } from "./pokeball-icon"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Heart, Users, Package } from "lucide-react"
+import { UserButton } from "./user-button"
+import { useSession } from "next-auth/react"
 
 export function Navbar() {
   const { t } = useTranslations()
   const pathname = usePathname()
+  const { status } = useSession()
 
   const navItems = [
     { href: "/", label: "home", icon: null },
@@ -24,7 +27,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 mr-6">
           <PokeballIcon className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold">{t("title")}</h1>
+          <h1 className="text-xl font-bold">Poke Utilities</h1>
         </Link>
 
         <nav className="flex-1">
@@ -51,6 +54,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeSwitcher />
+          <UserButton />
         </div>
       </div>
     </header>

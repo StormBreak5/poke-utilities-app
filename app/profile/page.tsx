@@ -8,15 +8,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2, User, Heart, Users } from "lucide-react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
 
 export default function ProfilePage() {
   const { t } = useTranslations()
   const { isLoading, getCurrentUser, updateUserProfile, getUserStats } = usePokemonStorage()
+  const { data: session, status } = useSession()
 
   const [user, setUser] = useState<{ id: number; email: string; name: string | null } | null>(null)
   const [stats, setStats] = useState({ favoriteCount: 0, teamCount: 0 })
   const [isEditing, setIsEditing] = useState(false)
   const [name, setName] = useState("")
+
+  // Redirect to sign in if not authenticated
+  if (status === "unauthenticated") {
+    redirect("/auth/signin")
+  }
 
   useEffect(() => {
     async function loadUserData() {
@@ -30,8 +38,10 @@ export default function ProfilePage() {
       setStats(userStats)
     }
 
-    loadUserData()
-  }, [getCurrentUser, getUserStats])
+    if (status === "authenticated") {
+      loadUserData()
+    }
+  }, [getCurrentUser, getUserStats, status])
 
   const handleUpdateProfile = async () => {
     const result = await updateUserProfile(name)
@@ -45,7 +55,7 @@ export default function ProfilePage() {
     }
   }
 
-  if (!user) {
+  if (status === "loading" || !session) {
     return (
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -86,7 +96,7 @@ export default function ProfilePage() {
                   <label htmlFor="email" className="text-sm font-medium">
                     {t("email")}
                   </label>
-                  <Input id="email" value={user.email} disabled className="bg-muted" />
+                  <Input id="email" value={session.user?.email || ""} disabled className="bg-muted" />
                   <p className="text-xs text-muted-foreground">{t("emailCannotBeChanged")}</p>
                 </div>
               </div>
@@ -94,12 +104,12 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t("name")}</p>
-                  <p>{user.name || t("noNameProvided")}</p>
+                  <p>{session.user?.name || t("noNameProvided")}</p>
                 </div>
 
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t("email")}</p>
-                  <p>{user.email}</p>
+                  <p>{session.user?.email}</p>
                 </div>
               </div>
             )}

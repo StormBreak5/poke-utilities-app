@@ -9,15 +9,25 @@ import { PokemonCardWithFavorite } from "@/components/pokemon-card-with-favorite
 import { Button } from "@/components/ui/button"
 import { Loader2, ChevronLeft } from "lucide-react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
 
 export default function FavoritesPage() {
   const { t } = useTranslations()
   const [pokemonList, setPokemonList] = useState<PokemonDetails[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { status } = useSession()
+
+  // Redirect to sign in if not authenticated
+  if (status === "unauthenticated") {
+    redirect("/auth/signin?callbackUrl=/favorites")
+  }
 
   useEffect(() => {
     async function loadFavorites() {
+      if (status !== "authenticated") return
+
       try {
         setIsLoading(true)
         setError(null)
@@ -53,9 +63,9 @@ export default function FavoritesPage() {
     }
 
     loadFavorites()
-  }, [t])
+  }, [t, status])
 
-  if (isLoading) {
+  if (status === "loading" || isLoading) {
     return (
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin" />

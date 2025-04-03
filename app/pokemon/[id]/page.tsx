@@ -31,6 +31,9 @@ export default function PokemonDetailsPage() {
   const [movesWithTypes, setMovesWithTypes] = useState<Record<string, MoveWithType[]>>({})
   const [isLoadingMoves, setIsLoadingMoves] = useState(false)
   const { t } = useTranslations()
+  const [hoveredFormId, setHoveredFormId] = useState<string | null>(null)
+  const [formDetails, setFormDetails] = useState<Record<string, PokemonDetails>>({})
+  const [loadingForms, setLoadingForms] = useState<Record<string, boolean>>({})
 
   const formatName = useCallback((name: string) => {
     return name
@@ -257,11 +260,28 @@ export default function PokemonDetailsPage() {
     return matches ? matches[1] : "1"
   }
 
-  // Função para renderizar as formas alternativas
+  // Render the alternative forms
   const renderAlternativeForms = () => {
     if (!species || !species.varieties) return null
 
     const varieties = species.varieties.filter((v) => !v.is_default)
+
+    // Function to load form details when hovering
+    const handleMouseEnter = async (pokemonId: string) => {
+      setHoveredFormId(pokemonId)
+
+      if (!formDetails[pokemonId] && !loadingForms[pokemonId]) {
+        setLoadingForms((prev) => ({ ...prev, [pokemonId]: true }))
+        try {
+          const details = await getPokemonDetails(pokemonId)
+          setFormDetails((prev) => ({ ...prev, [pokemonId]: details }))
+        } catch (error) {
+          console.error(`Error loading form details for ${pokemonId}:`, error)
+        } finally {
+          setLoadingForms((prev) => ({ ...prev, [pokemonId]: false }))
+        }
+      }
+    }
 
     if (varieties.length === 0) {
       return (
@@ -275,33 +295,16 @@ export default function PokemonDetailsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {varieties.map((variety, index) => {
           const pokemonId = getIdFromUrl(variety.pokemon.url)
-          const [formDetails, setFormDetails] = useState<PokemonDetails | null>(null)
-          const [isHovering, setIsHovering] = useState(false)
-          const [isLoading, setIsLoading] = useState(false)
-          const { t } = useTranslations()
-
-          // Load form details on hover
-          const handleMouseEnter = async () => {
-            setIsHovering(true)
-            if (!formDetails && !isLoading) {
-              setIsLoading(true)
-              try {
-                const details = await getPokemonDetails(pokemonId)
-                setFormDetails(details)
-              } catch (error) {
-                console.error(`Error loading form details for ${variety.pokemon.name}:`, error)
-              } finally {
-                setIsLoading(false)
-              }
-            }
-          }
+          const isHovering = hoveredFormId === pokemonId
+          const currentFormDetails = formDetails[pokemonId]
+          const isLoading = loadingForms[pokemonId]
 
           return (
             <div
               key={index}
               className="relative"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={() => setIsHovering(false)}
+              onMouseEnter={() => handleMouseEnter(pokemonId)}
+              onMouseLeave={() => setHoveredFormId(null)}
             >
               <Card className="overflow-hidden hover:bg-accent transition-colors">
                 <CardContent className="p-4">
@@ -325,9 +328,9 @@ export default function PokemonDetailsPage() {
                     <div className="flex justify-center py-2">
                       <Loader2 className="h-5 w-5 animate-spin" />
                     </div>
-                  ) : formDetails ? (
+                  ) : currentFormDetails ? (
                     <div className="space-y-1.5">
-                      {formDetails.stats.map((stat) => (
+                      {currentFormDetails.stats.map((stat) => (
                         <div key={stat.stat.name} className="grid grid-cols-2 gap-2 text-sm">
                           <span className="font-medium">{t(statNameMap[stat.stat.name] || stat.stat.name)}:</span>
                           <span>{stat.base_stat}</span>

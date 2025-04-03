@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useTranslations } from "@/hooks/use-translations"
-import { getItemsList, getItemDetails, searchItems, type Item } from "@/services/items-service"
+import { getHeldItemsList, getItemDetails, searchHeldItems, type Item } from "@/services/items-service"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -34,11 +34,11 @@ export default function ItemsPage() {
         setIsLoading(true)
         setError(null)
 
-        const response = await getItemsList(itemsPerPage, offset)
-        setTotalCount(response.count)
+        const { items: heldItems, total } = await getHeldItemsList(itemsPerPage, offset)
+        setTotalCount(total)
 
         // Fetch details for each item
-        const itemDetailsPromises = response.results.map((item) =>
+        const itemDetailsPromises = heldItems.map((item) =>
           getItemDetails(item.name).catch((err) => {
             console.error(`Error fetching item ${item.name}:`, err)
             return null
@@ -67,7 +67,7 @@ export default function ItemsPage() {
         setIsSearching(true)
         setError(null)
 
-        const results = await searchItems(debouncedSearchTerm)
+        const results = await searchHeldItems(debouncedSearchTerm)
         setItems(results)
       } catch (err) {
         console.error("Error searching items:", err)

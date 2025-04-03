@@ -21,6 +21,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, Plus, Trash, Edit, X } from "lucide-react"
 import Image from "next/image"
+import { ImportShowdownTeam } from "./import-showdown-team"
 
 export function TeamBuilder() {
   const { t } = useTranslations()
@@ -251,16 +252,22 @@ export function TeamBuilder() {
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">{t("myTeams")}</h2>
-        <Button onClick={() => setIsCreatingTeam(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t("createTeam")}
-        </Button>
+        <div className="flex gap-2">
+          <ImportShowdownTeam onImportComplete={() => getTeams().then(({ teams }) => setTeams(teams))} />
+          <Button onClick={() => setIsCreatingTeam(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t("createTeam")}
+          </Button>
+        </div>
       </div>
 
       {teams.length === 0 ? (
         <div className="text-center py-8">
           <p className="mb-4">{t("noTeams")}</p>
-          <Button onClick={() => setIsCreatingTeam(true)}>{t("createYourFirstTeam")}</Button>
+          <div className="flex justify-center gap-2">
+            <ImportShowdownTeam onImportComplete={() => getTeams().then(({ teams }) => setTeams(teams))} />
+            <Button onClick={() => setIsCreatingTeam(true)}>{t("createYourFirstTeam")}</Button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

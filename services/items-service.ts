@@ -1,4 +1,5 @@
 const API_URL = "https://pokeapi.co/api/v2"
+const HELD_ITEMS_CATEGORY_URL = "https://pokeapi.co/api/v2/item-category/12/"
 
 export interface Item {
   id: number
@@ -42,15 +43,59 @@ export interface ItemListResponse {
   }>
 }
 
-// Get a list of items with pagination
-export async function getItemsList(limit = 20, offset = 0): Promise<ItemListResponse> {
-  const response = await fetch(`${API_URL}/item?limit=${limit}&offset=${offset}`)
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch items list: ${response.status}`)
+export interface ItemCategoryResponse {
+  id: number
+  name: string
+  items: Array<{
+    name: string
+    url: string
+  }>
+  names: Array<{
+    name: string
+    language: {
+      name: string
+      url: string
+    }
+  }>
+  pocket: {
+    name: string
+    url: string
   }
+}
 
-  return response.json()
+// Get a list of held items
+export async function getHeldItemsList(
+  limit = 20,
+  offset = 0,
+): Promise<{
+  items: Array<{
+    name: string
+    url: string
+  }>
+  total: number
+}> {
+  try {
+    // First, fetch the held items category
+    const response = await fetch(HELD_ITEMS_CATEGORY_URL)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch held items category: ${response.status}`)
+    }
+
+    const categoryData: ItemCategoryResponse = await response.json()
+    const totalItems = categoryData.items.length
+
+    // Apply pagination manually since the API doesn't support it for category items
+    const paginatedItems = categoryData.items.slice(offset, offset + limit)
+
+    return {
+      items: paginatedItems,
+      total: totalItems,
+    }
+  } catch (error) {
+    console.error("Error fetching held items:", error)
+    throw error
+  }
 }
 
 // Get details for a specific item
@@ -64,22 +109,14 @@ export async function getItemDetails(nameOrId: string | number): Promise<Item> {
   return response.json()
 }
 
-// Search for items by name
-export async function searchItems(query: string): Promise<Item[]> {
+// Search for held items by name
+export async function searchHeldItems(query: string): Promise<Item[]> {
   try {
-    // First get a large list of items
-    const response = await fetch(`${API_URL}/item?limit=100`)
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch items: ${response.status}`)
-    }
-
-    const data: ItemListResponse = await response.json()
+    // First get the list of all held items
+    const { items } = await getHeldItemsList(1000) // Get all held items
 
     // Filter items by name
-    const filteredItems = data.results
-      .filter((item) => item.name.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, 20) // Limit to 20 results
+    const filteredItems = items.filter((item) => item.name.toLowerCase().includes(query.toLowerCase())).slice(0, 20) // Limit to 20 results
 
     // Fetch details for each filtered item
     const itemDetailsPromises = filteredItems.map((item) => getItemDetails(item.name))
@@ -87,7 +124,7 @@ export async function searchItems(query: string): Promise<Item[]> {
 
     return itemDetails
   } catch (error) {
-    console.error("Error searching items:", error)
+    console.error("Error searching held items:", error)
     return []
   }
 }
